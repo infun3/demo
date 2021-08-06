@@ -1,15 +1,13 @@
 FROM gitpod/workspace-mysql
-
-USER root
-
-RUN add-apt-repository ppa:ondrej/php && \
-    install-packages php8.0 && \
-    update-alternatives --set php /usr/bin/php8.0 \
-    curl -o /usr/bin/composer https://getcomposer.org/composer.phar && \
-    chmod +x /usr/bin/composer && \
-    composer selfupdate && \
-    rm -rf /root/.composer && \
+COPY ./php.ini /etc/php/8.0/mods-available/php.ini
+RUN sudo apt-get update && \
+    sudo apt-get install php-apcu php-imagick -y && \
+    sudo apt-get remove composer -y && \
+    sudo apt-get clean -y && \
+    sudo ln -s /etc/php/8.0/mods-available/php.ini /etc/php/8.0/cli/conf.d/40-php.ini && \
+    sudo curl -o /usr/bin/composer https://getcomposer.org/composer.phar && \
+    sudo chmod +x /usr/bin/composer && \
+    sudo composer selfupdate && \
+    sudo rm -rf /root/.composer && \
     composer global require drush/drush-launcher && \
     echo 'export PATH="$PATH:~/.config/composer/vendor/bin"' >> ~/.bashrc
-    
-USER gitpod
